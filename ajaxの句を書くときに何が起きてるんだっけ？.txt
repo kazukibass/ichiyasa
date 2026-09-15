@@ -1,0 +1,64 @@
+ajaxの句を書くときに何が起きてるんだっけ？
+JQueryの関数だよって宣言
+全体からクリック位置の指定
+並べ替え順を指定
+ajaxのとこ（強制プチサブミット？？）
+通信待ち
+返答来たからfor文回して文作るわ
+作った塊差し替えとくね
+
+みたいな感じ？
+
+jQuery(function($){
+
+		    $(document).on("click", ".productIdHeader, .priceHeader", function(){
+
+		        var productname = $('input[name="productname"]').val();
+		        var priceMin = $('input[name="priceMin"]').val();
+		        var priceMax = $('input[name="priceMax"]').val();
+
+		        // 押した列に応じて sortKey を決定
+		        var sortKey = "";
+		        if ($(this).hasClass("productIdHeader")) sortKey = "productid";
+		        if ($(this).hasClass("priceHeader")) sortKey = "price";
+
+		        $.ajax({
+		            url: "/practice_ajax/goods/sort",
+		            type: "POST",
+		            dataType: "json",
+		            data: {
+		                productname: productname,
+		                priceMin: priceMin,
+		                priceMax: priceMax,
+		                sortKey: sortKey
+		            },
+		            success: function(response){
+
+		                var goodsList = response.goodsList;
+		                var src = "";
+
+		                for (var idx = 0; idx < goodsList.length; idx++) {
+		                    var element = goodsList[idx];
+		                    var id = element.productid;
+		                    var name = element.productname;
+		                    var price = element.price;
+		                    var sellerid = element.sellerid ? element.sellerid : "";
+
+		                    var formattedPrice =  price + "円";
+
+		                    src += "<tr>";
+		                    src += "<td class='productIdData'>" + id + "</td>";
+		                    src += "<td class='productName'>" + name + "</td>";
+		                    src += "<td class='priceValue'>" + formattedPrice + "</td>";
+		                    src += "<td class='sellerId'>" + sellerid + "</td>";
+		                    src += "<td class='detail'><input type='button' value='商品詳細' data-id='" + id 
+								+ "' onclick='showDetail(this.getAttribute(\"data-id\"))' /></td>";
+		                    src += "</tr>";
+		                }
+
+		                // tbody を差し替え
+		                $("#goods-tbody").html(src);
+		            }
+		        });
+		    });
+		});
